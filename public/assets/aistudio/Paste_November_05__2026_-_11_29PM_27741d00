@@ -1,0 +1,1343 @@
+MASTER DEVELOPMENT PROMPT — ENTERPRISE PAYMENT PROCESSOR / PAYMENT HUB
+
+1. Project Overview
+
+Design and develop an enterprise-grade, configurable Payment Processor Application for a global banking environment.
+
+The Payment Processor will act as a centralized payment orchestration platform responsible for receiving payment instructions from various Product Processor Applications, validating and enriching payment data, applying configurable payment controls, transforming payment instructions into appropriate financial message formats, routing payments through configured gateways, receiving acknowledgements and credit confirmations, and publishing payment lifecycle events to downstream applications.
+
+The platform must support global payments, cross-border payments, domestic payments, high-value payments, real-time payments, and multi-currency transactions.
+
+The application must have a modern, responsive, enterprise banking UI for:
+
+1. Payment Operations.
+2. Payment Processing and Monitoring.
+3. Payment Pipeline Configuration.
+4. Payment Control Configuration.
+5. Gateway and Connectivity Configuration.
+6. Maker-Checker Approval.
+7. Payment Repair and Exception Management.
+8. Payment Reporting and Audit.
+
+The application must be configuration-driven. Source systems, payment controls, message formats, routing rules, gateways, downstream applications, and operational approval workflows must not be hardcoded.
+
+⸻
+
+2. Business Capabilities
+
+Build the following core capabilities.
+
+2.1 Payment Instruction Ingestion
+
+Receive payment instructions from multiple upstream Product Processor Applications.
+
+Example source systems:
+
+* Trade Processor
+* Global Cash Management Services (GCMS)
+* Treasury Processor
+* Liquidity Management System
+* Corporate Payment Applications
+* Manual Payment UI
+* External Banking Applications
+
+Support multiple ingestion mechanisms:
+
+* REST API
+* Kafka
+* MQ
+* File-based ingestion
+* Event-driven messaging
+* Internal application integration
+
+Each incoming payment must be assigned a unique Payment ID and maintain the original source instruction.
+
+Capture the following information:
+
+* Payment ID
+* Source System
+* Source Application
+* Source Transaction ID
+* Payment Type
+* Payment Currency
+* Payment Amount
+* Debtor Entity
+* Debtor Account
+* Creditor Entity
+* Creditor Account
+* Debtor Agent
+* Creditor Agent
+* Intermediary Agents
+* Value Date
+* Booking Date
+* Requested Execution Date
+* Payment Purpose
+* Regulatory Information
+* Remittance Information
+* Charges
+* FX Information
+* Payment Priority
+* Channel
+* Received Timestamp
+* Original Payload
+* Correlation ID
+* Idempotency Key
+
+Implement schema validation, source authentication, idempotency, duplicate message handling, and ingestion error management.
+
+2.2 Payment Processing Engine
+
+Implement a centralized payment processing engine.
+
+Processing flow:
+
+1. Receive Payment Instruction.
+2. Validate Source System.
+3. Validate Payment Schema.
+4. Normalize Payment Data.
+5. Enrich Payment Data.
+6. Retrieve SSI information.
+7. Apply Payment Controls.
+8. Perform Payment Risk Assessment.
+9. Determine Payment Route.
+10. Determine Message Format.
+11. Transform Payment Message.
+12. Apply Maker-Checker Approval if required.
+13. Submit Payment to Gateway.
+14. Receive Gateway Acknowledgement.
+15. Receive Credit Confirmation.
+16. Update Payment Lifecycle.
+17. Publish Payment Events.
+18. Generate Audit Records.
+
+The processing engine must support synchronous and asynchronous processing.
+
+Use configurable state transitions and prevent invalid payment lifecycle transitions.
+
+⸻
+
+3. Payment Controls Framework
+
+Create a configurable Payment Controls Engine.
+
+Every payment control must be independently configurable and reusable across multiple payment pipelines.
+
+3.1 Supported Payment Controls
+
+A. Mandatory Field Validation
+
+* Debtor Account validation
+* Creditor Account validation
+* Currency validation
+* Amount validation
+* Value Date validation
+* Agent validation
+* Payment Purpose validation
+* Required regulatory fields
+
+B. Large Payment Check
+
+Determine whether a payment exceeds configured thresholds.
+
+Support:
+
+* Currency-based thresholds
+* Entity-based thresholds
+* Payment type-based thresholds
+* Country-based thresholds
+* Source-system-based thresholds
+* Risk-based thresholds
+
+Example:
+
+IF Payment Amount > Configured Threshold
+THEN route to High-Value Payment Approval.
+
+C. Sanctions Screening
+
+Integrate with configurable sanctions screening providers.
+
+Screen:
+
+* Debtor
+* Creditor
+* Debtor Bank
+* Creditor Bank
+* Intermediary Banks
+* Beneficiary
+* Relevant payment information
+
+Support:
+
+* Screening status
+* Match score
+* Potential match
+* Confirmed match
+* False positive
+* Manual investigation
+* Compliance approval
+* Hold and release
+
+A sanctions hold must prevent payment transmission until an authorized compliance action is completed.
+
+D. Credit Check
+
+Integrate with configurable credit checking services.
+
+Support:
+
+* Credit limit validation
+* Available credit validation
+* Entity-level credit limits
+* Currency-based credit limits
+* Payment amount validation
+* Credit utilization
+* Credit approval
+
+E. Duplicate Payment Check
+
+Detect duplicate payments using configurable matching rules.
+
+Matching attributes:
+
+* Debtor Account
+* Creditor Account
+* Payment Amount
+* Currency
+* Value Date
+* Source Transaction ID
+* End-to-End ID
+* Payment Reference
+
+Support configurable duplicate matching windows and duplicate resolution workflows.
+
+F. Dual-Blind Risk Control
+
+Implement dual-blind approval functionality.
+
+* Maker creates or modifies payment.
+* First Checker performs independent approval.
+* Second Checker performs independent approval.
+* Checkers must not see each other’s decisions before submitting their own.
+* Maker cannot approve their own payment.
+* Approval decisions must be independent.
+* Payment cannot be released until all required approvals are completed.
+
+G. Additional Controls
+
+Implement extensible control interfaces for:
+
+* AML checks
+* Fraud detection
+* Country restrictions
+* Currency restrictions
+* Cut-off time validation
+* Value date validation
+* Account status validation
+* SSI validation
+* Payment limit checks
+* Regulatory compliance checks
+* Holiday calendar checks
+* Nostro balance checks
+* Liquidity checks
+* FX rate validation
+* Repair-required checks
+* High-risk beneficiary checks
+* Payment velocity checks
+* Gateway availability checks
+
+Each control must support:
+
+* Control ID
+* Control Name
+* Description
+* Control Type
+* Execution Order
+* Enabled/Disabled
+* Applicable Payment Types
+* Applicable Source Systems
+* Applicable Entities
+* Applicable Currencies
+* Applicable Countries
+* Rule Configuration
+* Failure Action
+* Severity
+* Approval Required
+* Effective Date
+* Expiry Date
+* Version
+* Audit History
+
+Failure actions:
+
+* Reject Payment
+* Hold Payment
+* Send to Repair
+* Require Approval
+* Retry
+* Continue with Warning
+
+Control configurations must have Maker-Checker approval before activation.
+
+⸻
+
+4. Payment Message Transformation Engine
+
+Build a configurable Message Transformation Framework.
+
+Support ISO 20022 and domestic payment message formats.
+
+4.1 SWIFT ISO 20022
+
+Implement transformation support for:
+
+* pacs.008 — FI-to-FI Customer Credit Transfer
+* pacs.009 — FI-to-FI Financial Institution Credit Transfer
+* pacs.002 — Payment Status Report
+* pacs.004 — Payment Return
+* pacs.007 — FI-to-FI Payment Reversal
+* pacs.028 — Payment Status Request
+* camt.056 — FI-to-FI Payment Cancellation Request
+* camt.029 — Resolution of Investigation
+* camt.053 — Bank-to-Customer Statement
+* camt.054 — Bank-to-Customer Debit/Credit Notification
+
+Support CBPR+ and configured market practice requirements.
+
+Implement validation against configured ISO 20022 message schemas and market practice rules.
+
+4.2 Domestic Payment Formats
+
+Support configurable domestic payment formats, including:
+
+* RTGS
+* NEFT
+* IMPS
+* UPI
+* ACH
+* Local clearing formats
+* Country-specific payment formats
+* Proprietary bank formats
+
+Domestic message formats must be implemented through configurable adapters and mapping templates.
+
+4.3 Transformation Capabilities
+
+Support:
+
+* Source-to-target field mapping
+* Conditional mapping
+* Data enrichment
+* Static values
+* Dynamic values
+* Currency-specific formatting
+* Country-specific formatting
+* Date transformation
+* Character conversion
+* XML generation
+* JSON generation
+* Fixed-width generation
+* CSV generation
+* Schema validation
+* Message versioning
+
+Maintain:
+
+* Original payment instruction
+* Canonical payment representation
+* Transformed payment message
+* Mapping version
+* Transformation errors
+* Transformation audit trail
+
+⸻
+
+5. Payment Gateway Integration Framework
+
+Develop a gateway integration framework using pluggable adapters.
+
+5.1 SWIFT Gateways
+
+Implement adapter interfaces for:
+
+* BOX Gateway
+* CitiSwitch
+* Other configurable SWIFT connectivity gateways
+
+Responsibilities:
+
+* Payment message submission
+* SWIFT message transmission
+* Gateway acknowledgement processing
+* Message status retrieval
+* Credit confirmation processing
+* Error handling
+* Retry management
+* Gateway reconciliation
+* Connection health monitoring
+
+5.2 Domestic Payment Gateways
+
+Implement adapters for:
+
+* ISSAC
+* RTGS Gateway
+* NEFT Gateway
+* IMPS Gateway
+* UPI Gateway
+* ACH Gateway
+* Other domestic gateways
+
+Each gateway must support configurable:
+
+* Connectivity Type
+* Endpoint
+* Authentication
+* Credentials Reference
+* Message Format
+* Request Mapping
+* Response Mapping
+* Timeout
+* Retry Policy
+* Circuit Breaker
+* Connection Health
+* Operational Schedule
+
+Do not store credentials as plain text. Use a secure secrets management integration.
+
+5.3 Gateway Routing
+
+Implement dynamic gateway selection.
+
+Routing criteria:
+
+* Payment Currency
+* Payment Type
+* Payment Amount
+* Debtor Entity
+* Creditor Country
+* Debtor Country
+* Payment Priority
+* Value Date
+* Source System
+* Gateway Availability
+* Cut-off Time
+* Configured Routing Priority
+
+Support:
+
+* Primary Gateway
+* Secondary Gateway
+* Fallback Routing
+* Manual Routing
+* Gateway Failover
+* Route Override with authorization
+
+Routing rules must be configurable through the Payment Pipeline UI.
+
+⸻
+
+6. Incoming Gateway Messages
+
+The Payment Processor must receive incoming messages from gateways.
+
+Examples:
+
+* Payment Acceptance
+* Payment Rejection
+* SWIFT ACK
+* SWIFT NACK
+* pacs.002
+* Credit Confirmation
+* Settlement Confirmation
+* Payment Return
+* Payment Recall
+* Gateway Error
+* Technical Failure
+
+Implement inbound message processing.
+
+Flow:
+
+1. Receive Gateway Message.
+2. Validate Gateway.
+3. Authenticate Message.
+4. Identify Original Payment.
+5. Parse Message.
+6. Normalize Status.
+7. Update Payment Lifecycle.
+8. Record Gateway Reference.
+9. Publish Payment Event.
+10. Generate Audit Record.
+
+Credit confirmation must be handled as a distinct lifecycle event.
+
+Maintain the distinction between:
+
+* Payment Accepted
+* Payment Sent
+* Payment Acknowledged
+* Payment Settled
+* Credit Confirmed
+* Payment Rejected
+* Payment Returned
+
+Do not treat a technical acknowledgement as settlement or beneficiary credit confirmation.
+
+⸻
+
+7. Manual Payment Application
+
+Develop a dedicated Manual Payment UI for Operations users.
+
+7.1 Manual Payment Creation
+
+Users must be able to create payments manually.
+
+Fields:
+
+* Payment Type
+* Debtor Entity
+* Debtor Account
+* Creditor Name
+* Creditor Account
+* Creditor Bank
+* Creditor Country
+* Currency
+* Amount
+* Value Date
+* Payment Reference
+* End-to-End ID
+* Remittance Information
+* Charges
+* Payment Purpose
+* Intermediary Bank
+* Payment Priority
+
+7.2 SSI Integration
+
+Integrate with the Account Management System (AMC) to retrieve Standing Settlement Instructions (SSI).
+
+Retrieve:
+
+* Debtor SSI
+* Creditor SSI
+* Nostro Account
+* Correspondent Bank
+* Intermediary Bank
+* Settlement Currency
+* Account Details
+* Routing Information
+* SSI Effective Date
+* SSI Status
+
+Support:
+
+* Dynamic SSI retrieval
+* SSI search
+* SSI selection
+* SSI validation
+* SSI enrichment
+* SSI versioning
+* SSI expiry validation
+
+Users must not manually override SSI data without authorization.
+
+7.3 Manual Payment Workflow
+
+1. Maker creates payment.
+2. System retrieves SSI from AMC.
+3. System enriches payment.
+4. System executes configured controls.
+5. Payment is submitted for approval.
+6. Checker reviews payment.
+7. Checker approves or rejects.
+8. Payment Processor transforms payment.
+9. Payment Processor routes payment to gateway.
+10. Payment status is updated.
+11. Payment events are published.
+
+Support Save Draft, Submit, Approve, Reject, Repair, Cancel, and Resubmit.
+
+⸻
+
+8. Payment Pipeline Configuration UI
+
+Build a comprehensive Payment Pipeline Configuration application.
+
+This is one of the most important modules.
+
+Operations and authorized Configuration users must be able to create, configure, test, approve, and activate payment pipelines.
+
+8.1 Pipeline Configuration
+
+Each pipeline must contain:
+
+* Pipeline ID
+* Pipeline Name
+* Description
+* Source System
+* Source Channel
+* Input Schema
+* Payment Type
+* Payment Classification
+* Canonical Mapping
+* Enrichment Configuration
+* Payment Controls
+* Message Transformation
+* Routing Rules
+* Gateway Configuration
+* Downstream Configuration
+* Retry Policy
+* Exception Handling
+* Effective Date
+* Version
+* Status
+
+8.2 Pipeline Designer UI
+
+Create a visual pipeline designer with configurable stages.
+
+Example:
+
+Source System
+↓
+Instruction Ingestion
+↓
+Schema Validation
+↓
+Canonical Payment Mapping
+↓
+SSI Enrichment
+↓
+Payment Controls
+↓
+Risk Assessment
+↓
+Message Transformation
+↓
+Maker-Checker Approval
+↓
+Gateway Routing
+↓
+Gateway Submission
+↓
+Credit Confirmation
+↓
+Downstream Event Publication
+
+Each stage must be selectable and configurable.
+
+Provide:
+
+* Drag-and-drop stage ordering
+* Stage configuration panel
+* Conditional branching
+* Control selection
+* Message format selection
+* Gateway selection
+* Error handling configuration
+* Retry configuration
+* Test execution
+* Pipeline version comparison
+* Pipeline activation and deactivation
+
+8.3 Source System Configuration
+
+Allow users to configure:
+
+* Source System Name
+* Source System ID
+* API Endpoint
+* Kafka Topic
+* MQ Queue
+* File Channel
+* Authentication
+* Input Schema
+* Canonical Mapping
+* Supported Payment Types
+* Enabled Controls
+* Applicable Entities
+* Processing Priority
+* Active Status
+
+8.4 Downstream Application Configuration
+
+Configure downstream applications that receive payment events.
+
+Examples:
+
+* Audit Application
+* Reconciliation Application
+* Accounting Application
+* Reporting Application
+* Data Lake
+* Regulatory Reporting
+* Payment Tracking Application
+* Customer Notification Application
+
+Configuration fields:
+
+* Application Name
+* Application ID
+* Event Type
+* Event Schema
+* Connectivity
+* Endpoint
+* Kafka Topic
+* MQ Queue
+* Authentication
+* Payload Mapping
+* Retry Policy
+* Delivery Guarantee
+* Active Status
+
+⸻
+
+9. Downstream Payment Events
+
+The Payment Processor must publish payment lifecycle events to downstream applications for audit, reconciliation, accounting, and reporting.
+
+Implement an event-driven architecture.
+
+Example events:
+
+* PaymentInstructionReceived
+* PaymentValidated
+* PaymentEnriched
+* PaymentControlPassed
+* PaymentControlFailed
+* PaymentHeld
+* PaymentApproved
+* PaymentRejected
+* PaymentTransformed
+* PaymentRouted
+* PaymentSubmitted
+* PaymentAcknowledged
+* PaymentCreditConfirmed
+* PaymentSettled
+* PaymentReturned
+* PaymentCancelled
+* PaymentRepaired
+* PaymentResubmitted
+
+Each event must contain:
+
+* Event ID
+* Event Type
+* Payment ID
+* Source System
+* Correlation ID
+* Event Timestamp
+* Payment Status
+* Payment Amount
+* Currency
+* Debtor Entity
+* Creditor Entity
+* Gateway
+* Gateway Reference
+* Event Version
+* Payload
+* Audit Metadata
+
+Implement:
+
+* Transactional Outbox
+* Event Versioning
+* Idempotent Event Consumers
+* Retry
+* Dead Letter Queue
+* Event Replay
+* Event Monitoring
+* Delivery Tracking
+
+Payment events must be published reliably without losing the corresponding payment state change.
+
+⸻
+
+10. Payment Operations UI
+
+Develop a complete Payment Operations Dashboard.
+
+10.1 Payment Dashboard
+
+Display:
+
+* Total Payments Received
+* Payments in Progress
+* Payments Pending Approval
+* Payments on Hold
+* Payments Submitted
+* Payments Acknowledged
+* Payments Credit Confirmed
+* Payments Settled
+* Payments Rejected
+* Payments in Repair
+* Failed Payments
+* Gateway Availability
+
+Support filtering by:
+
+* Date
+* Source System
+* Payment Type
+* Currency
+* Amount
+* Entity
+* Gateway
+* Payment Status
+* Value Date
+* Payment ID
+
+10.2 Payment Search and Investigation
+
+Create a comprehensive Payment Search UI.
+
+Search using:
+
+* Payment ID
+* Source Transaction ID
+* End-to-End ID
+* UETR
+* Gateway Reference
+* Debtor Account
+* Creditor Account
+* Amount
+* Currency
+* Value Date
+
+Payment details page must show:
+
+* Payment Summary
+* Original Instruction
+* Canonical Payment
+* Enriched Payment
+* Control Results
+* Screening Results
+* Approval History
+* Message Transformation
+* Gateway Submission
+* Gateway Acknowledgements
+* Credit Confirmation
+* Downstream Events
+* Audit Trail
+* Payment Lifecycle Timeline
+
+10.3 Payment Repair
+
+Provide an Operations Repair UI.
+
+Support:
+
+* Repair Required Payments
+* Validation Errors
+* SSI Errors
+* Transformation Errors
+* Gateway Errors
+* Missing Mandatory Data
+* Payment Routing Errors
+
+Repair functionality:
+
+* Display field-level validation errors
+* Edit permitted fields
+* Revalidate payment
+* Re-run configured controls
+* Resubmit payment
+* Track repair history
+
+All repair actions must be permission-controlled and audited.
+
+⸻
+
+11. Maker-Checker Workflow UI
+
+Develop a complete Maker-Checker Approval application.
+
+Support approvals for:
+
+* Manual Payments
+* High-Value Payments
+* Payment Pipeline Configuration
+* Payment Controls
+* Gateway Configuration
+* Routing Rules
+* Message Mapping
+* SSI Overrides
+* Payment Repair
+* Payment Cancellation
+* Operational Overrides
+
+Workflow capabilities:
+
+* Maker submits
+* Checker reviews
+* Checker approves
+* Checker rejects
+* Send back for repair
+* Multiple approval levels
+* Dual-blind approval
+* Approval delegation
+* Approval limits
+* Role-based approval
+* Entity-based approval
+* Currency-based approval
+* Amount-based approval
+* Approval SLA
+* Escalation
+
+The system must enforce separation of duties.
+
+⸻
+
+12. Application Architecture
+
+Use a Domain-Driven Design and microservices-based architecture.
+
+Suggested technology stack:
+
+Frontend:
+
+* React
+* TypeScript
+* Tailwind CSS
+* Material UI
+* Recharts
+* React Query
+
+Backend:
+
+* Java 21
+* Spring Boot
+* Spring Security
+* Spring Cloud
+* REST APIs
+* Kafka
+* Apache Camel
+* Drools or configurable rules engine
+
+Database:
+
+* PostgreSQL
+* Redis
+* Kafka
+* Object Storage for original and transformed messages
+
+Security:
+
+* OAuth2
+* OpenID Connect
+* JWT
+* RBAC
+* Maker-Checker
+* Audit Logging
+* Secrets Management
+* Encryption at Rest
+* Encryption in Transit
+
+12.1 Microservices
+
+Create the following microservices:
+
+1. Payment Instruction Service
+2. Payment Ingestion Service
+3. Payment Processing Orchestrator
+4. Payment Canonical Data Service
+5. Payment Validation Service
+6. Payment Controls Service
+7. Sanctions Screening Service
+8. Credit Check Service
+9. Duplicate Detection Service
+10. SSI Enrichment Service
+11. Payment Transformation Service
+12. Payment Routing Service
+13. Gateway Connectivity Service
+14. Gateway Adapter Service
+15. Payment Status Service
+16. Credit Confirmation Service
+17. Payment Event Publishing Service
+18. Downstream Integration Service
+19. Payment Operations Service
+20. Payment Repair Service
+21. Maker-Checker Workflow Service
+22. Pipeline Configuration Service
+23. Message Mapping Configuration Service
+24. Gateway Configuration Service
+25. Audit Service
+26. Reporting Service
+27. Notification Service
+28. Identity and Access Management Service
+
+Each service must have a clearly defined responsibility and bounded context.
+
+Do not create unnecessary microservices for every small function. Ensure appropriate domain boundaries.
+
+⸻
+
+13. Database Design
+
+Design normalized database schemas for:
+
+* Payment
+* Payment Instruction
+* Payment Canonical Data
+* Payment Status History
+* Payment Control Configuration
+* Payment Control Execution
+* Payment Screening Result
+* Payment Credit Check Result
+* Payment Duplicate Check Result
+* Payment SSI Reference
+* Payment Message
+* Payment Message Mapping
+* Payment Gateway
+* Gateway Submission
+* Gateway Acknowledgement
+* Credit Confirmation
+* Payment Routing Rule
+* Payment Pipeline
+* Payment Pipeline Version
+* Source System Configuration
+* Downstream Application Configuration
+* Payment Event
+* Payment Approval
+* Payment Repair
+* Payment Audit
+* User
+* Role
+* Permission
+* Approval Workflow
+* Operational Calendar
+
+Implement:
+
+* Primary Keys
+* Foreign Keys
+* Indexing
+* Unique Constraints
+* Optimistic Locking
+* Data Retention
+* Audit History
+* Versioning
+
+Payment financial records must not be physically deleted through ordinary operational workflows.
+
+⸻
+
+14. UI/UX Requirements
+
+Create a premium enterprise banking UI.
+
+Design principles:
+
+* Professional banking interface
+* Modern dashboard
+* Clean navigation
+* Responsive layout
+* Light Theme
+* Dark Theme
+* Consistent design system
+* Configurable tables
+* Searchable dropdowns
+* Advanced filters
+* Pagination
+* Sorting
+* Field-level validation
+* Confirmation dialogs
+* Toast notifications
+* Loading states
+* Empty states
+* Error states
+
+Main Navigation:
+
+1. Dashboard
+2. Payments
+3. Manual Payments
+4. Payment Pipeline
+5. Payment Controls
+6. Message Mapping
+7. Gateway Management
+8. Downstream Configuration
+9. Approval Workbench
+10. Payment Repair
+11. Payment Investigation
+12. Event Monitoring
+13. Reports
+14. Audit
+15. Administration
+
+Use icons for navigation and actions.
+
+Avoid long descriptive text in buttons. Use concise labels with tooltips.
+
+⸻
+
+15. Non-Functional Requirements
+
+Implement enterprise-grade non-functional capabilities.
+
+Performance
+
+* High-throughput payment processing
+* Asynchronous processing
+* Horizontal scalability
+* Configurable worker pools
+* Efficient database indexing
+* Distributed caching
+
+Resilience
+
+* Retry policies
+* Circuit breakers
+* Dead Letter Queues
+* Gateway failover
+* Idempotent processing
+* Recovery after system restart
+
+Security
+
+* Role-based access control
+* Segregation of duties
+* Secure credential storage
+* Encryption
+* Audit trails
+* Data masking
+* Secure APIs
+
+Reliability
+
+* No duplicate payment execution
+* Durable message processing
+* Payment lifecycle consistency
+* Transactional event publication
+* Reconciliation
+* Operational monitoring
+
+Observability
+
+* Distributed tracing
+* Correlation IDs
+* Structured logging
+* Metrics
+* Dashboards
+* Alerting
+
+Financial Integrity
+
+* Exact decimal arithmetic
+* Currency precision
+* Immutable payment audit records
+* Controlled state transitions
+* Explicit payment release authorization
+* Reconciliation between payment submission and gateway confirmation
+
+⸻
+
+16. Development Instructions
+
+Develop the application incrementally.
+
+Phase 1: Application Foundation
+
+* Authentication
+* Dashboard
+* Navigation
+* Database schema
+* User and role management
+
+Phase 2: Payment Core
+
+* Payment ingestion
+* Canonical payment model
+* Validation
+* Payment lifecycle
+* Payment search
+
+Phase 3: Controls
+
+* Control configuration UI
+* Rules engine
+* Duplicate detection
+* Large payment controls
+* Credit checks
+* Sanctions screening integration interfaces
+
+Phase 4: Transformation and Routing
+
+* ISO 20022 message transformation
+* Domestic payment format adapters
+* Gateway routing
+* Gateway configuration
+
+Phase 5: Manual Payments
+
+* Manual payment creation
+* AMC SSI integration
+* Payment enrichment
+* Maker-Checker approval
+
+Phase 6: Gateway Integration
+
+* BOX adapter
+* CitiSwitch adapter
+* ISSAC adapter
+* Acknowledgement processing
+* Credit confirmation
+
+Phase 7: Payment Pipeline
+
+* Visual pipeline designer
+* Source configuration
+* Controls configuration
+* Message format configuration
+* Connectivity configuration
+* Downstream configuration
+
+Phase 8: Operations
+
+* Payment investigation
+* Payment repair
+* Exception management
+* Approval workbench
+* Event monitoring
+
+Phase 9: Audit and Reporting
+
+* Payment lifecycle reports
+* Multi-currency reports
+* Gateway reports
+* Control reports
+* Audit reports
+* Downstream event reports
+
+Phase 10: Testing and Deployment
+
+* Unit tests
+* Integration tests
+* Contract tests
+* End-to-end tests
+* Performance tests
+* Security tests
+* Docker deployment
+* Kubernetes deployment
+
+⸻
+
+17. Mandatory Acceptance Criteria
+
+The completed application must demonstrate the following end-to-end scenarios.
+
+Scenario 1: Product Processor Payment
+
+* Receive payment instruction from GCMS.
+* Validate payment.
+* Enrich payment.
+* Execute configured controls.
+* Transform to pacs.008.
+* Route through BOX.
+* Receive gateway acknowledgement.
+* Receive credit confirmation.
+* Publish downstream audit events.
+
+Scenario 2: Financial Institution Payment
+
+* Receive payment instruction.
+* Apply controls.
+* Transform to pacs.009.
+* Route through CitiSwitch.
+* Track payment lifecycle.
+
+Scenario 3: Domestic Payment
+
+* Receive payment instruction.
+* Apply domestic controls.
+* Transform to domestic format.
+* Route through ISSAC.
+* Receive acknowledgement and confirmation.
+
+Scenario 4: Manual Payment
+
+* Operations maker creates payment.
+* Retrieve SSI from AMC.
+* Enrich payment.
+* Apply controls.
+* Submit for maker-checker approval.
+* Checker approves.
+* Payment is processed and routed.
+
+Scenario 5: Sanctions Hold
+
+* Payment matches sanctions screening rule.
+* Payment is held.
+* Compliance user investigates.
+* Authorized release or rejection.
+* Audit trail generated.
+
+Scenario 6: Duplicate Payment
+
+* Duplicate payment is detected.
+* Payment is placed on hold.
+* Operations investigates.
+* Authorized resolution is recorded.
+
+Scenario 7: Dual-Blind Approval
+
+* Payment requires two independent checkers.
+* First checker approves.
+* Second checker independently approves.
+* Payment is released only after both approvals.
+
+Scenario 8: Pipeline Configuration
+
+* Maker creates a new pipeline.
+* Configure source system.
+* Configure controls.
+* Configure pacs.008 message format.
+* Configure BOX connectivity.
+* Configure downstream audit events.
+* Submit for checker approval.
+* Activate the approved pipeline.
+
+Scenario 9: Gateway Failure
+
+* Gateway is unavailable.
+* Payment follows configured retry and fallback routing rules.
+* Operations can investigate the payment.
+* No duplicate payment execution occurs.
+
+Scenario 10: Payment Event Publication
+
+* Payment lifecycle events are generated.
+* Events are delivered to downstream applications.
+* Failed delivery is retried.
+* Event delivery status is visible to Operations.
+
+⸻
+
+FINAL DEVELOPMENT INSTRUCTION
+
+Develop a fully functional enterprise Payment Processor application, not merely a static dashboard or UI prototype.
+
+Prioritize the following:
+
+1. Payment Pipeline Configuration UI.
+2. Payment Operations UI.
+3. Manual Payment UI.
+4. Maker-Checker Approval UI.
+5. Payment Processing Engine.
+6. Configurable Payment Controls.
+7. ISO 20022 and Domestic Message Transformation.
+8. Gateway Integration Framework.
+9. Payment Lifecycle Management.
+10. Downstream Event Publishing.
+
+Use realistic banking payment data for development and testing.
+
+If actual AMC, BOX, CitiSwitch, ISSAC, sanctions, credit, or other external integrations are unavailable, implement pluggable adapters with clearly identified mock implementations. Do not represent mock responses as real external confirmations.
+
+Build the complete application with functional navigation, working forms, data persistence, APIs, configuration management, validation, role-based access, approval workflows, and operational dashboards.
+
+Ensure that all payment processing behavior is driven by approved configuration rather than hardcoded business rules.
+
+The final deliverable must be a production-oriented, extensible, secure, and scalable enterprise Payment Hub architecture and application.

@@ -1,0 +1,6 @@
+{
+  "name": "Global Payment Hub - Enterprise Payment Processor",
+  "description": "Enterprise-grade configurable payment orchestration platform for global banking, supporting ISO 20022 (pacs.008/009), domestic clearing (ISSAC, RTGS, NEFT), sanctions screening, dual-blind approvals, and visual pipeline configuration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
